@@ -19,7 +19,7 @@ class CreateDailyStatsTable extends Migration
             $table->string('sub_kind')->default('');
             $table->double('value');
 
-            $table->timestamp('date');
+            $table->timestamp('date')->index();
             $table->timestamps();
 
             $table->unique(['kind', 'sub_kind', 'date']);
