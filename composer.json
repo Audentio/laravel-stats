@@ -1,0 +1,29 @@
+{
+    "name": "audentio/laravel-stats",
+    "description": "Core statistics system for Audentio platforms",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jake Booher",
+            "email": "jakeb@audentio.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.0",
+        "ext-json": "*",
+        "audentio/laravel-base": "^1.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Audentio\\LaravelStats\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Audentio\\LaravelStats\\Providers\\StatsServiceProvider"
+            ]
+        }
+    }
+}
