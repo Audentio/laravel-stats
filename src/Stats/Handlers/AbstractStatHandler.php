@@ -21,11 +21,8 @@ abstract class AbstractStatHandler
 
     protected function getDateConditionalsForQuery(CarbonImmutable $date, string $columnName = 'created_at'): array
     {
-        $start = clone $date;
-        $start->startOfDay();
-
-        $end = clone $date;
-        $end->endOfDay();
+        $start = $date->startOfDay();
+        $end = $date->endOfDay();
 
         return [
             [$columnName, '>=', $start],
