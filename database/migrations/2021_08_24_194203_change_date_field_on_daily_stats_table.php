@@ -16,7 +16,7 @@ class ChangeDateFieldOnDailyStatsTable extends Migration
         DB::table('daily_stats')->truncate();
 
         Schema::table('daily_stats', function (Blueprint $table) {
-            $table->date('date')->nullable()->change();
+            $table->date('date')->nullable()->default(null)->change();
         });
     }
 
