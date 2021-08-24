@@ -3,9 +3,9 @@
 namespace Audentio\LaravelStats\Jobs;
 
 use Audentio\LaravelStats\Stats\Handlers\AbstractStatHandler;
-use Carbon\Carbon;
+use Carbon\CarbonImmutable;
+use Carbon\CarbonInterface;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -15,7 +15,7 @@ class BuildDailyStatsJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected Carbon $date;
+    protected string $dateString;
 
     /**
      * Execute the job.
@@ -24,17 +24,18 @@ class BuildDailyStatsJob implements ShouldQueue
      */
     public function handle()
     {
+        $date = (new CarbonImmutable($this->dateString))->startOfDay();
         $handlers = config('audentioStats.statHandlers');
         foreach ($handlers as $handlerClass) {
             /** @var AbstractStatHandler $instance */
             $instance = new $handlerClass;
-            $instance->buildStatsForDate($this->date);
+            $instance->buildStatsForDate($date);
         }
     }
 
-    public function __construct(Carbon $date)
+    public function __construct(CarbonInterface $date)
     {
-        $date->startOfDay();
-        $this->date = $date;
+        $this->dateString = $date->toString();
+
     }
 }

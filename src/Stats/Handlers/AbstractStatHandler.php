@@ -5,10 +5,11 @@ namespace Audentio\LaravelStats\Stats\Handlers;
 use App\Models\DailyStat;
 use Audentio\LaravelStats\Stats\DailyStatData;
 use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 
 abstract class AbstractStatHandler
 {
-    public function buildStatsForDate(Carbon $date): void
+    public function buildStatsForDate(CarbonImmutable $date): void
     {
         foreach ($this->getSubKinds() as $subKind) {
             $data = $this->buildStatForDate($subKind, $date);
@@ -18,7 +19,7 @@ abstract class AbstractStatHandler
         }
     }
 
-    protected function getDateConditionalsForQuery(Carbon $date, string $columnName = 'created_at'): array
+    protected function getDateConditionalsForQuery(CarbonImmutable $date, string $columnName = 'created_at'): array
     {
         $start = clone $date;
         $start->startOfDay();
@@ -32,7 +33,7 @@ abstract class AbstractStatHandler
         ];
     }
 
-    protected function buildStatForDate(string $subKind, Carbon $date): ?DailyStatData
+    protected function buildStatForDate(string $subKind, CarbonImmutable $date): ?DailyStatData
     {
         $methodName = 'calculate' . ucfirst($subKind);
         if (!method_exists($this, $methodName)) {

@@ -2,13 +2,13 @@
 
 namespace Audentio\LaravelStats\Stats;
 
-use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 
 class DailyStatData
 {
     protected string $kind;
     protected string $subKind;
-    protected Carbon $date;
+    protected CarbonImmutable $date;
     protected float $value;
 
     public function getValue(): float
@@ -21,11 +21,11 @@ class DailyStatData
         return [
             'kind' => $this->kind,
             'sub_kind' => $this->subKind,
-            'date' => $this->date,
+            'date' => $this->date->format('Y-m-d'),
         ];
     }
 
-    public function __construct(string $kind, string $subKind, Carbon $date, float $value)
+    public function __construct(string $kind, string $subKind, CarbonImmutable $date, float $value)
     {
         $this->kind = $kind;
         $this->subKind = $subKind;

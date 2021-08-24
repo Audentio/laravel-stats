@@ -2,11 +2,11 @@
 
 namespace Audentio\LaravelStats\Stats\Handlers\Traits;
 
-use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 
 trait BasicTableStats
 {
-    public function calculateCount(Carbon $date): float
+    public function calculateCount(CarbonImmutable $date): float
     {
         return (float) \DB::table($this->getTableNameForBasicTableStats())
             ->where($this->getDateConditionalsForQuery($date))
