@@ -16,6 +16,7 @@ class BuildDailyStatsJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected string $dateString;
+    protected array $extraData;
 
     /**
      * Execute the job.
@@ -29,13 +30,14 @@ class BuildDailyStatsJob implements ShouldQueue
         foreach ($handlers as $handlerClass) {
             /** @var AbstractStatHandler $instance */
             $instance = new $handlerClass;
-            $instance->buildStatsForDate($date);
+            $instance->buildStatsForDate($date, $this->extraData);
         }
     }
 
-    public function __construct(CarbonInterface $date)
+    public function __construct(CarbonInterface $date, array $extraData = [])
     {
         $this->dateString = $date->toString();
+        $this->extraData = $extraData;
 
     }
 }

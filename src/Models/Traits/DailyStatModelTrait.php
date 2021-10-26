@@ -12,6 +12,12 @@ use Illuminate\Database\Query\Builder;
 
 trait DailyStatModelTrait
 {
+
+    public function fillStatsExtraData(array $extraData = []): void
+    {
+
+    }
+
     protected function initializeDailyStatModelTrait()
     {
         $this->fillable = array_merge($this->fillable, [
@@ -23,17 +29,22 @@ trait DailyStatModelTrait
         ]);
     }
 
-    /** @return StatisticAggregation[] */
-    public static function getStatisticsData(Carbon $startDate, Carbon $endDate, string $aggregation,
-                                             ?array $limitKeys = null): array
+    public static function getStatisticsBaseQuery(Carbon $startDate, Carbon $endDate): Builder
     {
-        $query = \DB::table('daily_stats')
+        return \DB::table('daily_stats')
             ->select(['kind', 'sub_kind', 'value', 'date'])
             ->orderBy('date')
             ->where([
                 ['date', '>=', $startDate],
                 ['date', '<=', $endDate],
             ]);
+    }
+
+    /** @return StatisticAggregation[] */
+    public static function getStatisticsData(Carbon $startDate, Carbon $endDate, string $aggregation,
+                                             ?array $limitKeys = null): array
+    {
+        $query = self::getStatisticsBaseQuery($startDate, $endDate);
 
         if ($limitKeys) {
             $query->where(function(Builder $query) use ($limitKeys) {

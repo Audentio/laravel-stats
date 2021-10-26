@@ -2,7 +2,14 @@
 
 namespace Audentio\LaravelStats\Providers;
 
+use Audentio\LaravelGraphQL\LaravelGraphQL;
 use Audentio\LaravelStats\Console\Commands\RebuildStatsCommand;
+use Audentio\LaravelStats\GraphQL\Enums\Statistic\StatisticAggregationEnum;
+use Audentio\LaravelStats\GraphQL\Queries\Statistic\StatisticKeysQuery;
+use Audentio\LaravelStats\GraphQL\Queries\Statistic\StatisticsQuery;
+use Audentio\LaravelStats\GraphQL\Types\StatisticAggregationType;
+use Audentio\LaravelStats\GraphQL\Types\StatisticKeyType;
+use Audentio\LaravelStats\GraphQL\Types\StatisticType;
 use Audentio\LaravelStats\LaravelStats;
 use Illuminate\Support\ServiceProvider;
 
@@ -21,6 +28,39 @@ class StatsServiceProvider extends ServiceProvider
             $this->registerMigrations();
             $this->registerPublishes();
             $this->registerCommands();
+            $this->registerGraphQLSchema();
+        }
+    }
+
+    protected function registerGraphQLSchema(): void
+    {
+        if (LaravelStats::addsGraphQLSchema()) {
+            $schema = [
+                'types' => [
+                    'StatisticAggregation' => StatisticAggregationType::class,
+                    'StatisticKey' => StatisticKeyType::class,
+                    'Statistic' => StatisticType::class,
+                    'StatisticAggregationEnum' => StatisticAggregationEnum::class,
+                ],
+                'queries' => [
+                    'statisticKeys' => StatisticKeysQuery::class,
+                    'statistics' => StatisticsQuery::class,
+                ],
+            ];
+
+            $overrides = config('audentioStats.graphQLSchemaOverrides');
+            foreach ($schema as $schemaType => &$values) {
+                foreach ($values as $key => &$value) {
+                    if (isset($overrides[$schemaType][$value])) {
+                        $value = $overrides[$schemaType][$value];
+                    } else if (isset($overrides[$schemaType][$key])) {
+                        $value = $overrides[$schemaType][$key];
+                    }
+                }
+            }
+
+            LaravelGraphQL::registerTypes($schema['types']);
+            LaravelGraphQL::registerQueries($schema['queries']);
         }
     }
 
@@ -40,8 +80,10 @@ class StatsServiceProvider extends ServiceProvider
 
     protected function registerCommands(): void
     {
-        $this->commands([
-            RebuildStatsCommand::class,
-        ]);
+        if (LaravelStats::addsCliCommands()) {
+            $this->commands([
+                RebuildStatsCommand::class,
+            ]);
+        }
     }
 }

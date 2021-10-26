@@ -22,7 +22,9 @@ class CreateDailyStatsTable extends Migration
             $table->timestamp('date')->index();
             $table->timestamps();
 
-            $table->unique(['kind', 'sub_kind', 'date']);
+            if (\Audentio\LaravelStats\LaravelStats::usesUniqueKeyOnDailyStats()) {
+                $table->unique(['kind', 'sub_kind', 'date']);
+            }
         });
     }
 
