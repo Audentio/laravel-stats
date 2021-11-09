@@ -26,7 +26,7 @@ class LaravelStats
 
     public static function skipUniqueKeyOnDailyStats(): void
     {
-        self::$usesUniqueKeyOnDailyStats = true;
+        self::$usesUniqueKeyOnDailyStats = false;
     }
 
     public static function addsCliCommands(): bool
@@ -56,7 +56,12 @@ class LaravelStats
 
     public static function getStatKeys(): array
     {
-        return config('audentioStats.statKeys') ?? [];
+        return array_keys(config('audentioStats.statKeys')) ?? [];
+    }
+
+    public static function getSupportedContentTypesForStatKey(string $key): array
+    {
+        return config('audentioStats.statKeys.' . $key)['content_types'] ?? [];
     }
 
     public static function getStatKeyName(string $key): string

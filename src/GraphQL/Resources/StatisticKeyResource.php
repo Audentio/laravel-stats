@@ -30,6 +30,12 @@ class StatisticKeyResource extends GraphQLResource
                     return LaravelStats::getStatKeyName($root);
                 }
             ],
+            'supported_content_types' => [
+                'type' => Type::listOf(\GraphQL::type('StatisticContentTypeEnum')),
+                'resolve' => function ($root) {
+                    return LaravelStats::getSupportedContentTypesForStatKey($root);
+                }
+            ],
         ];
     }
 

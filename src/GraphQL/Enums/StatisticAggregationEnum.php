@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Audentio\LaravelStats\GraphQL\Enums\Statistic;
+namespace Audentio\LaravelStats\GraphQL\Enums;
 
 use Audentio\LaravelGraphQL\GraphQL\Support\Enum;
 

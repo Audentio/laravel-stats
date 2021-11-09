@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Audentio\LaravelStats\GraphQL\Queries\Statistic;
 
 use App\Core;
+use Audentio\LaravelBase\Utils\ContentTypeUtil;
 use Audentio\LaravelGraphQL\GraphQL\Definitions\Type;
 use Audentio\LaravelGraphQL\GraphQL\Support\Query;
 use Audentio\LaravelGraphQL\GraphQL\Traits\FilterableQueryTrait;
@@ -46,6 +47,15 @@ class StatisticsQuery extends Query
                 'type' => GraphQL::type('StatisticAggregationEnum'),
                 'description' => 'Defaults to \'day\' if none set.',
             ],
+            'content_type' => [
+                'type' => GraphQL::type('StatisticContentTypeEnum'),
+                'description' => 'Defaults to NULL if none set.',
+                'rules' => ['required_with:content_id'],
+            ],
+            'content_id' => [
+                'type' => Type::id(),
+                'rules' => ['required_with:content_type'],
+            ],
             'start_date' => [
                 'type' => Type::timestamp(),
                 'description' => 'If not specified the past 30 days will be shown.',
@@ -70,7 +80,20 @@ class StatisticsQuery extends Query
         $daysLimit = 730; // 2 year limit
         $instance = self::$instance;
 
-        if (!Core::viewer()->canViewStatistics()) {
+        $contentType = null;
+        $contentId = null;
+        $content = null;
+        if (isset($args['content_type'])) {
+            $contentType = ContentTypeUtil::getModelClassNameForContentType($args['content_type']);
+            $contentId = $args['content_id'];
+
+            $content = ContentTypeUtil::getModelByContentTypeAndId($contentType, $contentId);
+            if (!$content) {
+                $instance->notFoundError($info);
+            }
+        }
+
+        if (!Core::viewer()->canViewStatistics($content)) {
             $instance->permissionError($info);
         }
 
@@ -104,6 +127,7 @@ class StatisticsQuery extends Query
             $startDate,
             $endDate,
             $aggregation,
+            $content,
             $limitKeys
         );
     }

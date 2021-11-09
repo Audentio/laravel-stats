@@ -2,6 +2,8 @@
 
 namespace Audentio\LaravelStats\Models\Traits;
 
+use Audentio\LaravelBase\Foundation\AbstractModel;
+use Audentio\LaravelBase\Foundation\Traits\ContentTypeTrait;
 use Audentio\LaravelStats\Stats\Statistic;
 use Audentio\LaravelStats\Stats\StatisticAggregation;
 use Carbon\Carbon;
@@ -12,6 +14,7 @@ use Illuminate\Database\Query\Builder;
 
 trait DailyStatModelTrait
 {
+    use ContentTypeTrait;
 
     public function fillStatsExtraData(array $extraData = []): void
     {
@@ -21,7 +24,7 @@ trait DailyStatModelTrait
     protected function initializeDailyStatModelTrait()
     {
         $this->fillable = array_merge($this->fillable, [
-            'kind', 'sub_kind', 'date', 'value'
+            'content_type', 'content_id', 'kind', 'sub_kind', 'date', 'value'
         ]);
 
         $this->casts = array_merge($this->casts, [
@@ -42,7 +45,7 @@ trait DailyStatModelTrait
 
     /** @return StatisticAggregation[] */
     public static function getStatisticsData(Carbon $startDate, Carbon $endDate, string $aggregation,
-                                             ?array $limitKeys = null): array
+                                             ?AbstractModel $content, ?array $limitKeys = null): array
     {
         $query = self::getStatisticsBaseQuery($startDate, $endDate);
 
@@ -60,6 +63,18 @@ trait DailyStatModelTrait
                 }
             });
         }
+
+        $contentType = null;
+        $contentId = null;
+        if ($content) {
+            $contentType = $content->getContentType();
+            $contentId = $content->getKey();
+        }
+
+        $query->where([
+            ['content_type', $contentType],
+            ['content_id', $contentId],
+        ]);
 
         $data = $query->get()->all();
         foreach ($data as $key=>$item) {
