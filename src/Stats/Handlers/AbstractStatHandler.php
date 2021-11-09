@@ -64,6 +64,11 @@ abstract class AbstractStatHandler
         ];
     }
 
+    protected function getExtraConditionalsForFindingExistingModelOnStore(array $extraData): array
+    {
+        return [];
+    }
+
     protected function buildStatForDate(string $subKind, CarbonImmutable $date, ?AbstractModel $content, array $extraData = []): ?DailyStatData
     {
         $methodName = 'calculate' . ucfirst($subKind);
@@ -81,22 +86,14 @@ abstract class AbstractStatHandler
         $className = config('audentioStats.statsModel');
 
         /** @var DailyStatModelInterface $dailyStat */
-        $dailyStat = $className::firstOrNew($data->getDataToFindExistingModel());
+        $dailyStat = $className::where($this->getExtraConditionalsForFindingExistingModelOnStore($extraData))->firstOrNew($data->getDataToFindExistingModel());
         $dailyStat->fillStatsExtraData($extraData);
         if ($content !== null) {
             $dailyStat->content_type = $content->getContentType();
             $dailyStat->content_id = $content->getKey();
         }
         $dailyStat->value = $data->getValue();
-
-        try {
-            $dailyStat->save();
-        } catch (QueryException $e) {
-            dump($data->getDataToFindExistingModel());
-            dump($e->getMessage());
-            dump($dailyStat);
-            die;
-        }
+        $dailyStat->save();
     }
 
     abstract public function getKind(): string;

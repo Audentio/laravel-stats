@@ -35,13 +35,15 @@ class DailyStatData
 
     public function getDataToFindExistingModel(): array
     {
-        return [
+        $data = [
             'content_type' => $this->getContentType(),
             'content_id' => $this->getContentId(),
             'kind' => $this->kind,
             'sub_kind' => $this->subKind,
             'date' => $this->date->format('Y-m-d'),
         ];
+
+        return $data;
     }
 
     public function __construct(string $kind, string $subKind, CarbonImmutable $date, ?AbstractModel $content, float $value)
