@@ -9,6 +9,14 @@ class StatisticContentTypeEnum extends ContentTypeEnum
 {
     protected function _getContentTypes(): array
     {
-        return config('audentioStats.contentTypes') ?? [null];
+        $values = config('audentioStats.contentTypes') ?? ['no_values'];
+
+        $return = [];
+        foreach ($values as $value) {
+            if ($value === null) continue;
+
+            $return[] = $value;
+        }
+        return $return;
     }
 }
