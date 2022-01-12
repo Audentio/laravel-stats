@@ -2,12 +2,15 @@
 
 namespace Audentio\LaravelStats;
 
+use Audentio\LaravelStats\Stats\Handlers\AbstractStatHandler;
+
 class LaravelStats
 {
     protected static bool $runsMigrations = true;
     protected static bool $usesUniqueKeyOnDailyStats = true;
     protected static bool $addsGraphQLSchema = true;
     protected static bool $addsCliCommands = true;
+    protected static array $handlerInstances = [];
     
     public static function runsMigrations(): bool
     {
@@ -62,6 +65,26 @@ class LaravelStats
     public static function getSupportedContentTypesForStatKey(string $key): array
     {
         return config('audentioStats.statKeys.' . $key)['content_types'] ?? [];
+    }
+
+    public static function getHandlerInstanceForStatKey(string $statKey): AbstractStatHandler
+    {
+        $statKeyParts = explode('__', $statKey);
+        $statHandlers = self::getStatHandlers();
+        if (!isset($statHandlers[$statKeyParts[0]])) {
+            throw new \RuntimeException('Invalid stat key: ' . $statKey);
+        }
+
+        return self::getHandlerInstance($statHandlers[$statKeyParts[0]]);
+    }
+
+    public static function getHandlerInstance(string $handlerClass): AbstractStatHandler
+    {
+        if (!isset(static::$handlerInstances[$handlerClass])) {
+            static::$handlerInstances[$handlerClass] = new $handlerClass;
+        }
+
+        return static::$handlerInstances[$handlerClass];
     }
 
     public static function getStatKeyName(string $key): string

@@ -49,7 +49,7 @@ trait DailyStatModelTrait
     {
         $query = self::getStatisticsBaseQuery($startDate, $endDate);
 
-        if ($limitKeys) {
+        if ($limitKeys !== null) {
             $query->where(function(Builder $query) use ($limitKeys) {
                 foreach ($limitKeys as $key) {
                     $query->orWhere(function(Builder $query) use ($key) {

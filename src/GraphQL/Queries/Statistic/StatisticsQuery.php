@@ -9,6 +9,7 @@ use Audentio\LaravelBase\Utils\ContentTypeUtil;
 use Audentio\LaravelGraphQL\GraphQL\Definitions\Type;
 use Audentio\LaravelGraphQL\GraphQL\Support\Query;
 use Audentio\LaravelGraphQL\GraphQL\Traits\FilterableQueryTrait;
+use Audentio\LaravelStats\LaravelStats;
 use Closure;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type as GraphQLType;
@@ -119,7 +120,17 @@ class StatisticsQuery extends Query
             $instance->invalidParameterError($info, __('statistics.errors.cannotQueryMorThanXDays', ['days' => $daysLimit]));
         }
 
-        $limitKeys = $args['filter']['key_ids'] ?? null;
+        $limitKeys = $args['filter']['key_ids'] ?? LaravelStats::getStatKeys();
+        foreach ($limitKeys as $key => $statKey) {
+            $handler = LaravelStats::getHandlerInstanceForStatKey($statKey);
+            if (!$handler->canQuery()) {
+                unset($limitKeys[$key]);
+            }
+        }
+
+        if (empty($limitKeys)) {
+            $instance->notFoundError($info);
+        }
 
         $className = config('audentioStats.statsModel');
 

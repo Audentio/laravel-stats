@@ -2,7 +2,7 @@
 
 namespace Audentio\LaravelStats\Jobs;
 
-use Audentio\LaravelStats\Stats\Handlers\AbstractStatHandler;
+use Audentio\LaravelStats\LaravelStats;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Illuminate\Bus\Queueable;
@@ -28,8 +28,7 @@ class BuildDailyStatsJob implements ShouldQueue
         $date = (new CarbonImmutable($this->dateString))->startOfDay();
         $handlers = config('audentioStats.statHandlers');
         foreach ($handlers as $handlerClass) {
-            /** @var AbstractStatHandler $instance */
-            $instance = new $handlerClass;
+            $instance = LaravelStats::getHandlerInstance($handlerClass);
             $instance->buildStatsForDate($date, $this->extraData);
         }
     }

@@ -38,7 +38,16 @@ class StatisticKeysQuery extends Query
             self::$instance->permissionError($info);
         }
 
-        return LaravelStats::getStatKeys();
+        $statKeys = LaravelStats::getStatKeys();
+
+        foreach ($statKeys as $key=>$statKey) {
+            $handler = LaravelStats::getHandlerInstanceForStatKey($statKey);
+            if (!$handler->canQuery()) {
+                unset($statKeys[$key]);
+            }
+        }
+
+        return $statKeys;
     }
 
     public function resolve($root, $args, $context, ResolveInfo $info, Closure $getSelectFields)

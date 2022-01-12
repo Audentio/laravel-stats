@@ -19,6 +19,11 @@ abstract class AbstractStatHandler
         return [null];
     }
 
+    public function canQuery(): bool
+    {
+        return true;
+    }
+
     public function buildStatsForDate(CarbonImmutable $date, array $extraData = []): void
     {
         foreach ($this->getSubKinds() as $subKind) {
