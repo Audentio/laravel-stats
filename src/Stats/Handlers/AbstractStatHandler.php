@@ -14,6 +14,11 @@ use Illuminate\Support\Collection;
 
 abstract class AbstractStatHandler
 {
+    public function getStatTags(): array
+    {
+        return [];
+    }
+
     public function getSupportedContentTypes(): array
     {
         return [null];

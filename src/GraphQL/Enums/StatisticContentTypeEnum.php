@@ -3,9 +3,10 @@
 namespace Audentio\LaravelStats\GraphQL\Enums;
 
 use App\Models\AchievementRuleCondition;
+use Audentio\LaravelGraphQL\GraphQL\Definitions\Enums\ContentType\AbstractContentTypeEnum;
 use Audentio\LaravelGraphQL\GraphQL\Definitions\Enums\ContentType\ContentTypeEnum;
 
-class StatisticContentTypeEnum extends ContentTypeEnum
+class StatisticContentTypeEnum extends AbstractContentTypeEnum
 {
     protected function _getContentTypes(): array
     {

@@ -67,6 +67,11 @@ class LaravelStats
         return config('audentioStats.statKeys.' . $key)['content_types'] ?? [];
     }
 
+    public static function getTagsForStatKey(string $key): array
+    {
+        return config('audentioStats.statKeys.' . $key)['tags'] ?? [];
+    }
+
     public static function getHandlerInstanceForStatKey(string $statKey): AbstractStatHandler
     {
         $statKeyParts = explode('__', $statKey);

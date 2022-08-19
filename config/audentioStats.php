@@ -3,6 +3,7 @@
 return [
     'statHandlers' => [],
     'statKeys' => [],
+    'statTags' => [],
     'contentTypes' => [null],
 
     'graphQLSchemaOverrides' => [],

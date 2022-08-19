@@ -36,6 +36,12 @@ class StatisticKeyResource extends GraphQLResource
                     return LaravelStats::getSupportedContentTypesForStatKey($root);
                 }
             ],
+            'tags' => [
+                'type' => Type::nonNull(Type::listOf(Type::nonNull(\GraphQL::type('StatisticTagEnum')))),
+                'resolve' => function ($root) {
+                    return LaravelStats::getTagsForStatKey($root);
+                }
+            ],
         ];
     }
 

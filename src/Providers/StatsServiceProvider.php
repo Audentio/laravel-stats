@@ -6,6 +6,7 @@ use Audentio\LaravelGraphQL\LaravelGraphQL;
 use Audentio\LaravelStats\Console\Commands\RebuildStatsCommand;
 use Audentio\LaravelStats\GraphQL\Enums\StatisticAggregationEnum;
 use Audentio\LaravelStats\GraphQL\Enums\StatisticContentTypeEnum;
+use Audentio\LaravelStats\GraphQL\Enums\StatisticTagEnum;
 use Audentio\LaravelStats\GraphQL\Queries\Statistic\StatisticKeysQuery;
 use Audentio\LaravelStats\GraphQL\Queries\Statistic\StatisticsQuery;
 use Audentio\LaravelStats\GraphQL\Types\StatisticAggregationType;
@@ -43,6 +44,7 @@ class StatsServiceProvider extends ServiceProvider
                     'Statistic' => StatisticType::class,
                     'StatisticAggregationEnum' => StatisticAggregationEnum::class,
                     'StatisticContentTypeEnum' => StatisticContentTypeEnum::class,
+                    'StatisticTagEnum' => StatisticTagEnum::class,
                 ],
                 'queries' => [
                     'statisticKeys' => StatisticKeysQuery::class,

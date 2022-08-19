@@ -38,6 +38,14 @@ class StatisticsQuery extends Query
                 'type' => Type::listOf(Type::nonNull(Type::id())),
                 'hasOperator' => false,
             ],
+            'tags' => [
+                'type' => Type::listOf(Type::nonNull(GraphQL::type('StatisticTagEnum'))),
+                'description' => 'Only queries statistic keys that have all of the tags listed',
+            ],
+            'include_tags' => [
+                'type' => Type::listOf(Type::nonNull(GraphQL::type('StatisticTagEnum'))),
+                'description' => 'Only queries statistic keys that have at least one of the tags listed',
+            ],
         ];
     }
 
@@ -120,11 +128,34 @@ class StatisticsQuery extends Query
             $instance->invalidParameterError($info, __('statistics.errors.cannotQueryMorThanXDays', ['days' => $daysLimit]));
         }
 
+        $tags = $args['filter']['tags'] ?? [];
+        $includeTags = $args['filter']['tags'] ?? [];
+
         $limitKeys = $args['filter']['key_ids'] ?? LaravelStats::getStatKeys();
         foreach ($limitKeys as $key => $statKey) {
             $handler = LaravelStats::getHandlerInstanceForStatKey($statKey);
             if (!$handler->canQuery()) {
                 unset($limitKeys[$key]);
+            }
+
+            foreach ($tags as $tag) {
+                if (!in_array($tag, $handler->getStatTags())) {
+                    unset($limitKeys[$key]);
+                }
+            }
+
+            if (!empty($includeTags)) {
+                $hasTagMatch = false;
+                foreach ($includeTags as $tag) {
+                    if (in_array($tag, $handler->getStatTags())) {
+                        $hasTagMatch = true;
+                        break;
+                    }
+                }
+
+                if (!$hasTagMatch) {
+                    unset($limitKeys[$key]);
+                }
             }
         }
 
