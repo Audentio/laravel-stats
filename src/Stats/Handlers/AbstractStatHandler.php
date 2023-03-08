@@ -82,7 +82,7 @@ abstract class AbstractStatHandler
     protected function buildStatForDate(string $subKind, CarbonImmutable $date, ?AbstractModel $content, array $extraData = []): ?DailyStatData
     {
         $methodName = 'calculate' . ucfirst($subKind);
-        if (!method_exists($this, $methodName)) {
+        if (!is_callable([$this, $methodName])) {
             throw new \RuntimeException('Invalid sub kind: ' . $subKind . ' (Expected method: ' . $methodName . '())');
         }
 
