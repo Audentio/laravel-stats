@@ -2,11 +2,14 @@
 
 namespace Audentio\LaravelStats\Stats;
 
+use Audentio\LaravelStats\LaravelStats;
+use Audentio\LaravelStats\Stats\Handlers\AbstractStatHandler;
 use Carbon\Carbon;
 use Carbon\CarbonTimeZone;
 
 class Statistic
 {
+
     private string $kind;
     private string $subKind;
     private Carbon $date;
@@ -21,6 +24,21 @@ class Statistic
     public function getValue(): float
     {
         return $this->value;
+    }
+
+    public function getValueString(): string
+    {
+        return $this->getHandler()->formatValueString($this->subKind, $this->getValue());
+    }
+
+    public function getDate(): Carbon
+    {
+        return $this->date;
+    }
+
+    public function getHandler(): AbstractStatHandler
+    {
+        return LaravelStats::getHandlerInstanceForStatKey($this->getKey());
     }
 
     public function addValue(float $value): void

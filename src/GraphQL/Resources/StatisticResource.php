@@ -31,6 +31,12 @@ class StatisticResource extends GraphQLResource
                     return $statistic->getValue();
                 }
             ],
+            'valueString' => [
+                'type' => Type::nonNull(Type::string()),
+                'resolve' => function (Statistic $statistic) {
+                    return $statistic->getValueString();
+                }
+            ],
         ];
     }
 

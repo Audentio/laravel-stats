@@ -4,6 +4,7 @@ namespace Audentio\LaravelStats\Models\Traits;
 
 use Audentio\LaravelBase\Foundation\AbstractModel;
 use Audentio\LaravelBase\Foundation\Traits\ContentTypeTrait;
+use Audentio\LaravelStats\LaravelStats;
 use Audentio\LaravelStats\Stats\Statistic;
 use Audentio\LaravelStats\Stats\StatisticAggregation;
 use Carbon\Carbon;
@@ -45,24 +46,43 @@ trait DailyStatModelTrait
 
     /** @return StatisticAggregation[] */
     public static function getStatisticsData(Carbon $startDate, Carbon $endDate, string $aggregation,
-                                             ?AbstractModel $content, ?array $limitKeys = null): array
+                                             ?AbstractModel $content, array $keys): array
     {
+        if (empty($keys)) {
+            throw new \LogicException('Must set a list of stat keys to query');
+        }
+
         $query = self::getStatisticsBaseQuery($startDate, $endDate);
 
-        if ($limitKeys !== null) {
-            $query->where(function(Builder $query) use ($limitKeys) {
-                foreach ($limitKeys as $key) {
-                    $query->orWhere(function(Builder $query) use ($key) {
-                        $keyParts = explode('__', $key, 2);
-                        $query->where('kind', $keyParts[0]);
+        $statKeyParts = [];
+        foreach (LaravelStats::getStatKeys() as $statKey) {
+            $keyParts = explode('__', $statKey, 2);
+            if (empty($keyParts[1])) {
+                $keyParts[1] = null;
+            }
+            if (!array_key_exists($keyParts[0], $statKeyParts)) {
+                $statKeyParts[$keyParts[0]] = [];
+            }
 
-                        if (isset($keyParts[1])) {
-                            $query->where('sub_kind', $keyParts[1]);
-                        }
-                    });
-                }
-            });
+            $statKeyParts[$keyParts[0]][$keyParts[1]] = false;
         }
+        $query->where(function(Builder $query) use ($keys, &$statKeyParts) {
+            foreach ($keys as $key) {
+                $query->orWhere(function(Builder $query) use ($key, &$statKeyParts) {
+                    $keyParts = explode('__', $key, 2);
+                    $query->where('kind', $keyParts[0]);
+
+                    if (isset($keyParts[1])) {
+                        $query->where('sub_kind', $keyParts[1]);
+                        $statKeyParts[$keyParts[0]][$keyParts[1]] = true;
+                    } else {
+                        foreach ($statKeyParts[$keyParts[0]] as &$keyPart) {
+                            $keyPart = true;
+                        }
+                    }
+                });
+            }
+        });
 
         $contentType = null;
         $contentId = null;
@@ -124,9 +144,18 @@ trait DailyStatModelTrait
             })->all();
 
             $statistics = [];
+            foreach ($statKeyParts as $kind => $subKinds) {
+                foreach ($subKinds as $subKind => $include) {
+                    $key = $kind . '__' . $subKind;
+                    if (!$include) {
+                        continue;
+                    }
+                    $statistics[$key] = new Statistic($kind, $subKind, $periodStart);
+                }
+            }
             foreach ($dataInRange as $item) {
                 if (!array_key_exists($item->key, $statistics)) {
-                    $statistics[$item->key] = new Statistic($item->kind, $item->sub_kind, $periodStart);
+                    continue;
                 }
 
                 /** @var Statistic $statistic */

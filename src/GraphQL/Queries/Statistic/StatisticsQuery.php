@@ -10,6 +10,7 @@ use Audentio\LaravelGraphQL\GraphQL\Definitions\Type;
 use Audentio\LaravelGraphQL\GraphQL\Support\Query;
 use Audentio\LaravelGraphQL\GraphQL\Traits\FilterableQueryTrait;
 use Audentio\LaravelStats\LaravelStats;
+use Audentio\LaravelStats\Utils\ValueFormatter;
 use Closure;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type as GraphQLType;
@@ -131,16 +132,16 @@ class StatisticsQuery extends Query
         $tags = $args['filter']['tags'] ?? [];
         $includeTags = $args['filter']['tags'] ?? [];
 
-        $limitKeys = $args['filter']['key_ids'] ?? LaravelStats::getStatKeys();
-        foreach ($limitKeys as $key => $statKey) {
+        $keys = $args['filter']['key_ids'] ?? LaravelStats::getStatKeys();
+        foreach ($keys as $key => $statKey) {
             $handler = LaravelStats::getHandlerInstanceForStatKey($statKey);
             if (!$handler->canQuery()) {
-                unset($limitKeys[$key]);
+                unset($keys[$key]);
             }
 
             foreach ($tags as $tag) {
                 if (!in_array($tag, $handler->getStatTags())) {
-                    unset($limitKeys[$key]);
+                    unset($keys[$key]);
                 }
             }
 
@@ -154,12 +155,12 @@ class StatisticsQuery extends Query
                 }
 
                 if (!$hasTagMatch) {
-                    unset($limitKeys[$key]);
+                    unset($keys[$key]);
                 }
             }
         }
 
-        if (empty($limitKeys)) {
+        if (empty($keys)) {
             $instance->notFoundError($info);
         }
 
@@ -170,7 +171,7 @@ class StatisticsQuery extends Query
             $endDate,
             $aggregation,
             $content,
-            $limitKeys
+            $keys
         );
     }
 
