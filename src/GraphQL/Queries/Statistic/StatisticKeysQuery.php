@@ -34,7 +34,7 @@ class StatisticKeysQuery extends Query
 
     public static function getResolve($root, $args, $context, ResolveInfo $info, Closure $getSelectFields)
     {
-        if (!Core::viewer()->canViewStatistics()) {
+        if (!Core::viewer()->canViewStatistics(keys: true)) {
             self::$instance->permissionError($info);
         }
 
