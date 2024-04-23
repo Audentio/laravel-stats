@@ -20,7 +20,7 @@ trait BasicTableStats
         $additionalContentTypeConditionals = $this->getAdditionalContentTypeConditionalsForTableStats($content, $extraData) ?? null;
 
         $query= \DB::table($this->getTableNameForBasicTableStats())
-            ->where($this->getDateConditionalsForQuery($date))
+            ->where($this->getDateConditionalsForQuery($date, $this->getTableNameForBasicTableStats()  . '.created_at'))
             ->where($this->getConditionalsForBasicTableStats($extraData))
             ->where($this->getCommonConditionalsForQuery($extraData));
 
