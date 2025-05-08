@@ -16,6 +16,11 @@ use Illuminate\Support\Collection;
 
 abstract class AbstractStatHandler
 {
+    public function getOverviewMethod(?string $subKind = null): string
+    {
+        return 'sum';
+    }
+
     public function getValueType(string $subKind): string
     {
         return ValueFormatter::VALUE_FORMAT_NUMBER;

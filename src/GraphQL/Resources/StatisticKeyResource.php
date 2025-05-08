@@ -6,6 +6,7 @@ namespace Audentio\LaravelStats\GraphQL\Resources;
 
 use Audentio\LaravelGraphQL\GraphQL\Definitions\Type;
 use Audentio\LaravelGraphQL\GraphQL\Support\Resource as GraphQLResource;
+use Audentio\LaravelGraphQL\Rebing\GraphQL\GraphQL;
 use Audentio\LaravelStats\LaravelStats;
 
 class StatisticKeyResource extends GraphQLResource
@@ -28,6 +29,12 @@ class StatisticKeyResource extends GraphQLResource
                 'type' => Type::nonNull(Type::string()),
                 'resolve' => function ($root) {
                     return LaravelStats::getStatKeyName($root);
+                }
+            ],
+            'overview_method' => [
+                'type' => Type::nonNull(\GraphQL::type('StatisticOverviewMethodEnum')),
+                'resolve' => function ($root) {
+                    return LaravelStats::getOverviewMethodForStatKey($root);
                 }
             ],
             'supported_content_types' => [

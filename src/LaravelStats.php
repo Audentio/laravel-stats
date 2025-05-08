@@ -67,6 +67,11 @@ class LaravelStats
         return config('audentioStats.statKeys.' . $key)['content_types'] ?? [];
     }
 
+    public static function getOverviewMethodForStatKey(string $key): string
+    {
+        return config('audentioStats.statKeys.' . $key)['overview_method'] ?? 'sum';
+    }
+
     public static function getTagsForStatKey(string $key): array
     {
         return config('audentioStats.statKeys.' . $key)['tags'] ?? [];
