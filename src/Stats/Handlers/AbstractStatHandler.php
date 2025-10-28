@@ -41,6 +41,15 @@ abstract class AbstractStatHandler
         return [null];
     }
 
+    public function getSupportedContentModels(?string $contentType, array $extraData): Collection
+    {
+        if ($contentType === null) {
+            return collect([null]);
+        }
+
+        return $this->getSupportedContentModelsQuery($contentType, $extraData)->get();
+    }
+
     public function formatValueString(string $subKind, float $value): string
     {
         return ValueFormatter::format($value, $this->getValueType($subKind), $this->getValueFormatOptions($subKind));
@@ -56,7 +65,7 @@ abstract class AbstractStatHandler
         foreach ($this->getSubKinds() as $subKind) {
             foreach ($this->getSupportedContentTypes() as $contentType) {
                 foreach ($this->getSupportedContentModels($contentType, $extraData) as $content) {
-                    $data = $this->buildStatForDate($subKind, $date, $content, $extraData);
+                    $data = $this->buildStatForDate($subKind, $date, $content, $extraData, false);
 
                     if ($data) {
                         $this->storeDailyStatData($data, $content, $extraData);
@@ -66,13 +75,22 @@ abstract class AbstractStatHandler
         }
     }
 
-    protected function getSupportedContentModels(?string $contentType, array $extraData): Collection
+    public function buildStatForDate(string $subKind, CarbonImmutable $date, ?AbstractModel $content, array $extraData = [], bool $store = true): ?DailyStatData
     {
-        if ($contentType === null) {
-            return collect([null]);
+        $methodName = 'calculate' . ucfirst($subKind);
+        if (!is_callable([$this, $methodName])) {
+            throw new \RuntimeException('Invalid sub kind: ' . $subKind . ' (Expected method: ' . $methodName . '())');
         }
 
-        return $this->getSupportedContentModelsQuery($contentType, $extraData)->get();
+        $value = $this->$methodName($date, $content, $extraData);
+
+        $data = new DailyStatData($this->getKind(), $subKind, $date, $content, $value, $extraData);
+
+        if ($store) {
+            $this->storeDailyStatData($data, $content, $extraData);
+        }
+
+        return $data;
     }
 
     protected function getSupportedContentModelsQuery(string $contentType, array $extraData): Builder
@@ -99,18 +117,6 @@ abstract class AbstractStatHandler
     protected function getExtraConditionalsForFindingExistingModelOnStore(array $extraData): array
     {
         return [];
-    }
-
-    protected function buildStatForDate(string $subKind, CarbonImmutable $date, ?AbstractModel $content, array $extraData = []): ?DailyStatData
-    {
-        $methodName = 'calculate' . ucfirst($subKind);
-        if (!is_callable([$this, $methodName])) {
-            throw new \RuntimeException('Invalid sub kind: ' . $subKind . ' (Expected method: ' . $methodName . '())');
-        }
-
-        $value = $this->$methodName($date, $content, $extraData);
-
-        return new DailyStatData($this->getKind(), $subKind, $date, $content, $value, $extraData);
     }
 
     protected function storeDailyStatData(DailyStatData $data, ?AbstractModel $content, array $extraData = []): void
