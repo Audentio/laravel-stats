@@ -13,6 +13,6 @@ class StatisticAggregationEnum extends Enum
     protected $attributes = [
         'name' => 'StatisticAggregationEnum',
         'description' => 'An enum type',
-        'values' => ['day', 'month'],
+        'values' => ['day', 'week', 'month'],
     ];
 }

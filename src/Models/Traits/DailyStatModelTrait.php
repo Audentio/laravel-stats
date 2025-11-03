@@ -111,6 +111,10 @@ trait DailyStatModelTrait
             case 'day':
                 $periodInterval = CarbonInterval::createFromDateString('1 day');
                 break;
+            case 'week':
+                $intervalStart->startOfWeek(Carbon::SUNDAY);
+                $periodInterval = CarbonInterval::createFromDateString('1 week');
+                break;
             case 'month':
                 $intervalStart->startOfMonth();
                 $periodInterval = CarbonInterval::createFromDateString('1 month');
