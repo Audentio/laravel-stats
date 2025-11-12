@@ -43,7 +43,7 @@ abstract class AbstractStatHandler
 
     public function getSupportedContentModels(string $subKind, ?string $contentType, array $extraData): Collection
     {
-        if (!$this->isSubKindAvailableForContentType($subKind, $contentType)) {
+        if (!$this->isSubKindAvailableForContentType($subKind, $contentType, $extraData)) {
             return collect([]);
         }
         if ($contentType === null) {
@@ -99,7 +99,7 @@ abstract class AbstractStatHandler
         return $data;
     }
 
-    public function isSubKindAvailableForContentType(string $subKind, ?string $contentType): bool
+    public function isSubKindAvailableForContentType(string $subKind, ?string $contentType, array $extraData): bool
     {
         return true;
     }
