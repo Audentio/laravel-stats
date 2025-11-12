@@ -38,7 +38,7 @@ class StatisticKeysQuery extends Query
             self::$instance->permissionError($info);
         }
 
-        $statKeys = LaravelStats::getStatKeys();
+        $statKeys = LaravelStats::getStatKeysForGraphQL();
 
         foreach ($statKeys as $key=>$statKey) {
             $handler = LaravelStats::getHandlerInstanceForStatKey($statKey);

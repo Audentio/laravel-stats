@@ -11,7 +11,8 @@ class LaravelStats
     protected static bool $addsGraphQLSchema = true;
     protected static bool $addsCliCommands = true;
     protected static array $handlerInstances = [];
-    
+    protected static ?\Closure $filterStatKeysForGraphQL = null;
+
     public static function runsMigrations(): bool
     {
         return self::$runsMigrations;
@@ -55,6 +56,22 @@ class LaravelStats
     public static function getStatHandlers(): array
     {
         return config('audentioStats.statHandlers') ?? [];
+    }
+
+    public static function filterStatKeysForGraphQL(?\Closure $closure): void
+    {
+        self::$filterStatKeysForGraphQL = $closure;
+    }
+
+    public static function getStatKeysForGraphQL(): array
+    {
+        $statKeys = self::getStatKeys();
+
+        if (isset(self::$filterStatKeysForGraphQL)) {
+            (self::$filterStatKeysForGraphQL)($statKeys);
+        }
+
+        return $statKeys;
     }
 
     public static function getStatKeys(): array
