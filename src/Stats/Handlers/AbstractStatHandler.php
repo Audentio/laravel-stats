@@ -41,13 +41,16 @@ abstract class AbstractStatHandler
         return [null];
     }
 
-    public function getSupportedContentModels(?string $contentType, array $extraData): Collection
+    public function getSupportedContentModels(string $subKind, ?string $contentType, array $extraData): Collection
     {
+        if (!$this->isSubKindAvailableForContentType($subKind, $contentType)) {
+            return collect([]);
+        }
         if ($contentType === null) {
             return collect([null]);
         }
 
-        return $this->getSupportedContentModelsQuery($contentType, $extraData)->get();
+        return $this->getSupportedContentModelsQuery($subKind, $contentType, $extraData)->get();
     }
 
     public function formatValueString(string $subKind, float $value): string
@@ -64,7 +67,10 @@ abstract class AbstractStatHandler
     {
         foreach ($this->getSubKinds() as $subKind) {
             foreach ($this->getSupportedContentTypes() as $contentType) {
-                foreach ($this->getSupportedContentModels($contentType, $extraData) as $content) {
+                foreach ($this->getSupportedContentModels($subKind, $contentType, $extraData) as $content) {
+                    if (!$this->isSubKindAvailableForContent($subKind, $content)) {
+                        continue;
+                    }
                     $data = $this->buildStatForDate($subKind, $date, $content, $extraData, false);
 
                     if ($data) {
@@ -93,7 +99,12 @@ abstract class AbstractStatHandler
         return $data;
     }
 
-    protected function getSupportedContentModelsQuery(string $contentType, array $extraData): Builder
+    public function isSubKindAvailableForContentType(string $subKind, ?string $contentType): bool
+    {
+        return true;
+    }
+
+    protected function getSupportedContentModelsQuery(string $subKind, string $contentType, array $extraData): Builder
     {
         return $contentType::query();
     }
