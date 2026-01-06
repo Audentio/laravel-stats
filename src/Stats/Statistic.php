@@ -13,8 +13,12 @@ class Statistic
     private string $kind;
     private string $subKind;
     private Carbon $date;
+    private string $overviewMethod;
 
-    private float $value = 0.0;
+    private ?float $value = null;
+    private array $values = [];
+
+    //['min', 'max', 'avg', 'sum'],
 
     public function getKey(): string
     {
@@ -23,6 +27,16 @@ class Statistic
 
     public function getValue(): float
     {
+        if ($this->value === null) {
+            $this->value = match($this->overviewMethod) {
+                'min' => min($this->values),
+                'max' => max($this->values),
+                'avg' => array_sum($this->values) / count($this->values),
+                'sum' => array_sum($this->values),
+                default => throw new \LogicException('Unknown overview method: ' . $this->overviewMethod),
+            };
+        }
+        
         return $this->value;
     }
 
@@ -43,7 +57,10 @@ class Statistic
 
     public function addValue(float $value): void
     {
-        $this->value += $value;
+        if ($this->value !== null) {
+            $this->value = null;
+        }
+        $this->values[] = $value;
     }
 
     public function __construct(string $kind, string $subKind, Carbon|string $date)
@@ -55,5 +72,6 @@ class Statistic
         $this->kind = $kind;
         $this->subKind = $subKind;
         $this->date = $date;
+        $this->overviewMethod = LaravelStats::getOverviewMethodForStatKey($kind . '__' . $subKind);
     }
 }
