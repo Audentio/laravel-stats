@@ -28,6 +28,10 @@ class Statistic
     public function getValue(): float
     {
         if ($this->value === null) {
+            if (empty($this->values)) {
+                $this->value = 0.0;
+                return $this->value;
+            }
             $this->value = match($this->overviewMethod) {
                 'min' => min($this->values),
                 'max' => max($this->values),
@@ -36,7 +40,7 @@ class Statistic
                 default => throw new \LogicException('Unknown overview method: ' . $this->overviewMethod),
             };
         }
-        
+
         return $this->value;
     }
 
