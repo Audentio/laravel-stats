@@ -36,7 +36,7 @@ trait DailyStatModelTrait
     public static function getStatisticsBaseQuery(Carbon $startDate, Carbon $endDate): Builder
     {
         return \DB::table('daily_stats')
-            ->select(['kind', 'sub_kind', 'value', 'date'])
+            ->select(['kind', 'sub_kind', 'value', 'date', 'updated_at'])
             ->orderBy('date')
             ->where([
                 ['date', '>=', $startDate],
@@ -100,6 +100,7 @@ trait DailyStatModelTrait
         foreach ($data as $key=>$item) {
             $item->key = $item->kind . '__' . $item->sub_kind;
             $item->date = new Carbon($item->date, new CarbonTimeZone('UTC'));
+            $item->updated_at = new Carbon($item->updated_at, new CarbonTimeZone('UTC'));
         }
         $data = collect($data);
 
@@ -166,6 +167,7 @@ trait DailyStatModelTrait
                 $statistic = $statistics[$item->key];
 
                 $statistic->addValue($item->value);
+                $statistic->addUpdatedAt($item->updated_at);
             }
 
             $statisticAggregation->addStatistics($statistics);

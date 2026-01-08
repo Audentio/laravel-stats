@@ -5,6 +5,7 @@ namespace Audentio\LaravelStats\Stats;
 use Audentio\LaravelStats\LaravelStats;
 use Audentio\LaravelStats\Stats\Handlers\AbstractStatHandler;
 use Carbon\Carbon;
+use Carbon\CarbonInterface;
 use Carbon\CarbonTimeZone;
 
 class Statistic
@@ -15,6 +16,7 @@ class Statistic
     private Carbon $date;
     private string $overviewMethod;
 
+    private ?CarbonInterface $updatedAt = null;
     private ?float $value = null;
     private array $values = [];
 
@@ -49,6 +51,11 @@ class Statistic
         return $this->getHandler()->formatValueString($this->subKind, $this->getValue());
     }
 
+    public function getUpdatedAt(): ?CarbonInterface
+    {
+        return $this->updatedAt;
+    }
+
     public function getDate(): Carbon
     {
         return $this->date;
@@ -65,6 +72,13 @@ class Statistic
             $this->value = null;
         }
         $this->values[] = $value;
+    }
+
+    public function addUpdatedAt(CarbonInterface $updatedAt): void
+    {
+        if (!$this->updatedAt || $this->updatedAt < $updatedAt) {
+            $this->updatedAt = $updatedAt;
+        }
     }
 
     public function __construct(string $kind, string $subKind, Carbon|string $date)

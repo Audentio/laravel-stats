@@ -37,6 +37,12 @@ class StatisticResource extends GraphQLResource
                     return $statistic->getValueString();
                 }
             ],
+            'updated_at' => [
+                'type' => Type::timestamp(),
+                'resolve' => function (Statistic $statistic) {
+                    return $statistic->getUpdatedAt();
+                }
+            ],
         ];
     }
 
