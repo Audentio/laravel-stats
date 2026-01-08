@@ -3,6 +3,7 @@
 namespace Audentio\LaravelStats\Stats;
 
 use Carbon\Carbon;
+use Carbon\CarbonInterface;
 
 class StatisticAggregation
 {
@@ -10,6 +11,7 @@ class StatisticAggregation
     private Carbon $end;
     private string $aggregation;
     private array $statistics = [];
+    private ?CarbonInterface $updatedAt = null;
 
     public function getStart(): Carbon
     {
@@ -31,9 +33,19 @@ class StatisticAggregation
         return $this->statistics;
     }
 
+    public function getUpdatedAt(): ?CarbonInterface
+    {
+        return $this->updatedAt;
+    }
+
     public function addStatistic(Statistic $statistic): void
     {
         $this->statistics[] = $statistic;
+        if ($statistic->getUpdatedAt()) {
+            if ($this->updatedAt === null || $statistic->getUpdatedAt() > $this->updatedAt) {
+                $this->updatedAt = $statistic->getUpdatedAt();
+            }
+        }
     }
 
     public function addStatistics(array $statistics): void

@@ -39,6 +39,13 @@ class StatisticAggregationResource extends GraphQLResource
                     return $aggregation->getStatistics();
                 }
             ],
+
+            'updated_at' => [
+                'type' => Type::timestamp(),
+                'resolve' => function (StatisticAggregation $aggregation) {
+                    return $aggregation->getUpdatedAt();
+                }
+            ],
         ];
     }
 
