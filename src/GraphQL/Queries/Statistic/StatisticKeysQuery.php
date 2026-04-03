@@ -47,6 +47,22 @@ class StatisticKeysQuery extends Query
             }
         }
 
+        $statKeys = array_values($statKeys);
+
+        usort($statKeys, function (string $a, string $b) {
+            $handlerA = LaravelStats::getHandlerInstanceForStatKey($a);
+            $handlerB = LaravelStats::getHandlerInstanceForStatKey($b);
+            $subKindA = explode('__', $a, 2)[1] ?? $a;
+            $subKindB = explode('__', $b, 2)[1] ?? $b;
+            $orderA = $handlerA->getDisplayOrder($subKindA);
+            $orderB = $handlerB->getDisplayOrder($subKindB);
+
+            if ($orderA === null && $orderB === null) return 0;
+            if ($orderA === null) return 1;
+            if ($orderB === null) return -1;
+            return $orderA <=> $orderB;
+        });
+
         return $statKeys;
     }
 

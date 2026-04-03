@@ -49,6 +49,14 @@ class StatisticKeyResource extends GraphQLResource
                     return LaravelStats::getTagsForStatKey($root);
                 }
             ],
+            'display_order' => [
+                'type' => Type::int(),
+                'resolve' => function ($root) {
+                    $handler = LaravelStats::getHandlerInstanceForStatKey($root);
+                    $subKind = explode('__', $root, 2)[1] ?? $root;
+                    return $handler->getDisplayOrder($subKind);
+                }
+            ],
         ];
     }
 

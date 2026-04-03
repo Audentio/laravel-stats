@@ -31,6 +31,11 @@ abstract class AbstractStatHandler
         return [];
     }
 
+    public function getDisplayOrder(string $subKind): ?int
+    {
+        return null;
+    }
+
     public function getStatTags(): array
     {
         return [];
